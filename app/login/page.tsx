@@ -99,7 +99,12 @@ export default function LoginPage() {
             </Button>
           </form>
 
-        
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <Separator className="w-full" />
+            </div>
+          </div>
+
           <div className="text-center text-sm">
             Don't have an account?{' '}
             <Link href="/register" className="text-blue-600 hover:text-blue-500 underline">

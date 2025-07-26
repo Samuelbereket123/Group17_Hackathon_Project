@@ -164,17 +164,17 @@ Please help me prepare for this interview by analyzing my resume against this jo
   // Show setup screen for new chats
   if (showSetup) {
     return (
-      <div className="w-full h-[600px] flex items-center justify-center p-4">
+      <div className="w-full min-h-[400px] h-full max-h-[700px] flex items-center justify-center p-4">
         <ChatSetup onSetupComplete={handleSetupComplete} />
       </div>
     )
   }
 
   return (
-    <Card className="w-full h-[600px] flex flex-col shadow-lg border-0">
+    // Ensure the Card fills available height and is responsive
+    <Card className="w-full min-h-[400px] h-full max-h-[700px] flex flex-col shadow-lg border-0">
       <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-t-xl">
         <CardTitle className="flex items-center gap-2 text-lg font-semibold text-blue-700">
-          Gemini AI Chat
           {!chatId && (
             <span className="text-sm font-normal text-blue-600">(New Chat)</span>
           )}
@@ -185,6 +185,7 @@ Please help me prepare for this interview by analyzing my resume against this jo
       </CardHeader>
       <Separator />
       <CardContent className="flex-1 flex flex-col p-0">
+        {/* Message area: always scrolls if content overflows */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white" style={{scrollbarWidth:'thin'}}>
           {isLoadingMessages ? (
             <div className="text-center text-gray-400 mt-16">

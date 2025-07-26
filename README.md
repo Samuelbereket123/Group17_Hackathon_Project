@@ -1,4 +1,7 @@
+
 # Interviewer AI - Chat Application
+
+A full-featured chat application with AI-powered conversations, built with Next.js, MongoDB, and Google's Gemini AI.
 
 A full-featured chat application with AI-powered conversations, built with Next.js, MongoDB, and Google's Gemini AI.
 
@@ -248,3 +251,4 @@ If you encounter any issues:
 - [ ] Real-time collaboration
 - [ ] Chat templates and prompts
 - [ ] Analytics and insights
+
