@@ -16,6 +16,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: ERROR_MESSAGES.chat.messageRequired + ' and ' + ERROR_MESSAGES.chat.chatIdRequired }, { status: 400 })
     }
 
+    // Validate API key
+    if (!AI_CONFIG.apiKey || AI_CONFIG.apiKey === 'AIzaSyDAveeImm5DzF3aX4lIknUM0yfQcCmGPOA') {
+      return NextResponse.json(
+        { error: 'Invalid or missing Google AI API key. Please set GOOGLE_AI_API_KEY environment variable.' }, 
+        { status: 500 }
+      )
+    }
+
     // Save user message to database
     await saveMessage(chatId, message, 'user')
 
@@ -29,7 +37,14 @@ export async function POST(request: NextRequest) {
     // Use the configured AI model
     const model = genAI.getGenerativeModel({ model: AI_CONFIG.model })
 
-    const result = await model.generateContent(message)
+    // Add timeout and better error handling
+    const result = await Promise.race([
+      model.generateContent(message),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 30000)
+      )
+    ]) as any
+
     const response = await result.response
     const text = response.text()
 
@@ -45,9 +60,20 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Chat API error:', error, error?.stack, error?.message)
+    console.error('Chat API error:', error)
+    
+    // Provide more specific error messages
+    let errorMessage: string = ERROR_MESSAGES.ai.generationFailed
+    if (error?.message?.includes('fetch failed')) {
+      errorMessage = 'Network error: Unable to connect to AI service. Please check your internet connection.'
+    } else if (error?.message?.includes('timeout')) {
+      errorMessage = 'Request timeout: AI service is taking too long to respond.'
+    } else if (error?.message?.includes('API key')) {
+      errorMessage = 'Authentication error: Invalid API key.'
+    }
+    
     return NextResponse.json(
-      { error: ERROR_MESSAGES.ai.generationFailed, details: error?.message || String(error) }, 
+      { error: errorMessage, details: error?.message || String(error) }, 
       { status: 500 }
     )
   }

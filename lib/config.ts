@@ -12,7 +12,7 @@ export const DATABASE_CONFIG = {
 export const AI_CONFIG = {
   provider: 'google' as const,
   model: 'gemini-2.0-flash' as const,
-  apiKey: process.env.GOOGLE_AI_API_KEY || 'AIzaSyDAveeImm5DzF3aX4lIknUM0yfQcCmGPOA'
+  apiKey: process.env.GOOGLE_AI_API_KEY || ''
 } as const
 
 

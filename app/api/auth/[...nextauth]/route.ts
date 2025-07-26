@@ -1,5 +1,4 @@
 import NextAuth from "next-auth";
-import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import clientPromise from "@/lib/mongodb"
@@ -18,18 +17,14 @@ const handler = NextAuth({
           return null;
         }
 
+        try {
+          const client = await clientPromise
+          const db = client.db(DATABASE_CONFIG.name)
+          const usersCollection = db.collection(DATABASE_CONFIG.collections.users)
 
-        const client = await clientPromise
-        const db = client.db(DATABASE_CONFIG.name)
-        const usersCollection = db.collection(DATABASE_CONFIG.collections.users)
-
-          const user = await prisma.user.findUnique({
-            where: {
-              username: credentials.username
-            }
+          const user = await usersCollection.findOne({
+            username: credentials.username
           });
-
-          await prisma.$disconnect();
 
           if (!user) {
             return null;
@@ -45,7 +40,7 @@ const handler = NextAuth({
           }
 
           return {
-            id: user.id,
+            id: user._id.toString(),
             username: user.username,
             email: user.email || "",
           };

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import clientPromise from "@/lib/mongodb";
+import { DATABASE_CONFIG } from "@/lib/config";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,16 +23,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    const { PrismaClient } = await import('@prisma/client') as any;
-    const prisma = new PrismaClient();
+    const client = await clientPromise;
+    const db = client.db(DATABASE_CONFIG.name);
+    const usersCollection = db.collection(DATABASE_CONFIG.collections.users);
     
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { username },
-          { email }
-        ]
-      }
+    const existingUser = await usersCollection.findOne({
+      $or: [
+        { username },
+        { email }
+      ]
     });
 
     if (existingUser) {
@@ -44,12 +45,11 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create user
-    const user = await prisma.user.create({
-      data: {
-        username,
-        email,
-        password: hashedPassword,
-      },
+    const user = await usersCollection.insertOne({
+      username,
+      email,
+      password: hashedPassword,
+      createdAt: new Date(),
     });
 
     return NextResponse.json(

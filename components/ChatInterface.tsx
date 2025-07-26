@@ -134,11 +134,11 @@ export default function ChatInterface({ chatId, onChatCreated, currentChatTitle 
   }
 
 
-
   return (
-    <Card className="w-full h-[600px] flex flex-col shadow-lg border-0">
-      <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-t-xl">
-        <CardTitle className="flex items-center gap-2 text-lg font-semibold text-blue-700">
+    <div className="w-full h-full flex flex-col shadow-lg border rounded-xl overflow-hidden">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 border-b flex-shrink-0">
+        <div className="flex items-center gap-2 text-lg font-semibold text-blue-700">
           Gemini AI Chat
           {!chatId && (
             <span className="text-sm font-normal text-blue-600">(New Chat)</span>
@@ -146,11 +146,12 @@ export default function ChatInterface({ chatId, onChatCreated, currentChatTitle 
           {chatId && currentChatTitle && currentChatTitle !== APP_CONFIG.defaultChatTitle && (
             <span className="text-sm font-normal text-blue-600">• {currentChatTitle}</span>
           )}
-        </CardTitle>
-      </CardHeader>
-      <Separator />
-      <CardContent className="flex-1 flex flex-col p-0">
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white" style={{scrollbarWidth:'thin'}}>
+        </div>
+      </div>
+      
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto bg-white min-h-0" style={{scrollbarWidth:'thin'}}>
+        <div className="p-4 space-y-4 pb-2">
           {isLoadingMessages ? (
             <div className="text-center text-gray-400 mt-16">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -211,28 +212,30 @@ export default function ChatInterface({ chatId, onChatCreated, currentChatTitle 
           )}
           <div ref={messagesEndRef} />
         </div>
-        <form
-          className="p-4 border-t bg-white flex gap-2"
-          onSubmit={e => { e.preventDefault(); handleSendMessage(); }}
+      </div>
+      
+      {/* Input Form */}
+      <form
+        className="p-4 border-t bg-white flex gap-2 flex-shrink-0"
+        onSubmit={e => { e.preventDefault(); handleSendMessage(); }}
+      >
+        <Input
+          value={inputMessage}
+          onChange={e => setInputMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={chatId ? "Type your message..." : "Type a message to start a new chat..."}
+          disabled={isLoading}
+          className="flex-1 focus-visible:ring-blue-400"
+          autoFocus
+        />
+        <Button
+          type="submit"
+          disabled={isLoading || !inputMessage.trim()}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 rounded-xl shadow"
         >
-          <Input
-            value={inputMessage}
-            onChange={e => setInputMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={chatId ? "Type your message..." : "Type a message to start a new chat..."}
-            disabled={isLoading}
-            className="flex-1 focus-visible:ring-blue-400"
-            autoFocus
-          />
-          <Button
-            type="submit"
-            disabled={isLoading || !inputMessage.trim()}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 rounded-xl shadow"
-          >
-            Send
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+          Send
+        </Button>
+      </form>
+    </div>
   )
 } 
