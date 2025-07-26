@@ -27,7 +27,7 @@ A full-featured chat application with AI-powered conversations, built with Next.
 - **Styling**: Tailwind CSS, shadcn/ui components
 - **Backend**: Next.js API routes
 - **Database**: MongoDB with native driver
-- **AI**: Google Gemini AI (gemini-2.0-flash)
+- **AI**: Google Gemini AI (gemini-pro)
 - **Authentication**: NextAuth.js (optional)
 
 ## 📁 Project Structure
@@ -119,8 +119,18 @@ interviewer-ai/
 3. **Environment Variables**
    Create a `.env.local` file:
    ```env
+   # Google AI API Key (Required for AI functionality)
+   # Get your API key from: https://makersuite.google.com/app/apikey
+   GOOGLE_AI_API_KEY=your_google_ai_api_key_here
+   
+   # Alternative environment variable names (if needed)
+   GEMINI_API_KEY=your_gemini_api_key_here
+   GOOGLE_API_KEY=your_google_api_key_here
+   
+   # MongoDB Connection String
    MONGODB_URI=your_mongodb_connection_string
-   GOOGLE_AI_API_KEY=your_gemini_api_key
+   
+   # NextAuth Configuration
    NEXTAUTH_SECRET=your_nextauth_secret
    NEXTAUTH_URL=http://localhost:3000
    ```

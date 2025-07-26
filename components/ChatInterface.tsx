@@ -9,6 +9,7 @@ import { IChatMessage } from '@/lib/models/Chat'
 import { formatMessage, generateChatTitle } from '@/lib/utils'
 import { APP_CONFIG } from '@/lib/config'
 import { api } from '@/lib/api'
+import ChatSetup from './ChatSetup'
 
 interface Message {
   id: string
@@ -28,6 +29,9 @@ export default function ChatInterface({ chatId, onChatCreated, currentChatTitle 
   const [inputMessage, setInputMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingMessages, setIsLoadingMessages] = useState(false)
+  const [showSetup, setShowSetup] = useState(false)
+  const [resumeId, setResumeId] = useState<string>('')
+  const [jobDescription, setJobDescription] = useState<string>('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -37,12 +41,14 @@ export default function ChatInterface({ chatId, onChatCreated, currentChatTitle 
   useEffect(() => {
     if (chatId) {
       loadMessages(chatId)
+      setShowSetup(false)
     } else {
       setMessages([])
+      setShowSetup(true)
     }
   }, [chatId])
 
-    const loadMessages = async (chatId: string) => {
+  const loadMessages = async (chatId: string) => {
     setIsLoadingMessages(true)
     try {
       const response = await api.getMessages(chatId)
@@ -62,15 +68,37 @@ export default function ChatInterface({ chatId, onChatCreated, currentChatTitle 
     }
   }
 
-  const createNewChat = async () => {
+  const createNewChat = async (resumeId?: string, jobDescription?: string) => {
     try {
       const response = await api.createChat(APP_CONFIG.defaultChatTitle)
       if (response.success && response.data?.chat) {
         onChatCreated?.(response.data.chat.id)
+        
+        // If we have resume and job description, send an initial message
+        if (resumeId && jobDescription) {
+          const initialMessage = `I've uploaded my resume and here's the job description I'm interested in:
+
+Job Description:
+${jobDescription}
+
+Please help me prepare for this interview by analyzing my resume against this job description and providing personalized advice.`
+          
+          // Send the initial message
+          await api.sendMessage(response.data.chat.id, initialMessage)
+          
+          // Reload messages to show the conversation
+          await loadMessages(response.data.chat.id)
+        }
       }
     } catch (error) {
       console.error('Failed to create new chat:', error)
     }
+  }
+
+  const handleSetupComplete = async (resumeId: string, jobDescription: string) => {
+    setResumeId(resumeId)
+    setJobDescription(jobDescription)
+    await createNewChat(resumeId, jobDescription)
   }
 
   const handleSendMessage = async () => {
@@ -133,7 +161,14 @@ export default function ChatInterface({ chatId, onChatCreated, currentChatTitle 
     }
   }
 
-
+  // Show setup screen for new chats
+  if (showSetup) {
+    return (
+      <div className="w-full h-[600px] flex items-center justify-center p-4">
+        <ChatSetup onSetupComplete={handleSetupComplete} />
+      </div>
+    )
+  }
 
   return (
     <Card className="w-full h-[600px] flex flex-col shadow-lg border-0">

@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import ChatInterface from '@/components/ChatInterface'
-import ChatSidebar from '@/components/ChatSidebar'
+import AppLayout from '@/components/AppLayout'
 import { api } from '@/lib/api'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function Dashboard() {
   const [currentChatId, setCurrentChatId] = useState<string | undefined>()
@@ -33,17 +35,46 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto h-[calc(100vh-2rem)] flex gap-4">
-        {/* Sidebar */}
-        <div className="flex-shrink-0">
-          <ChatSidebar
-            currentChatId={currentChatId}
-            onChatSelect={handleChatSelect}
-            onNewChat={handleNewChat}
-          />
+    <AppLayout
+      currentChatId={currentChatId}
+      onChatSelect={handleChatSelect}
+      onNewChat={handleNewChat}
+    >
+      <div className="flex flex-col h-full">
+        {/* Feature Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Chat Assistant</CardTitle>
+              <CardDescription>
+                Upload your resume and job description to get personalized interview preparation help.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-3">
+                Start a new chat to upload your resume and job description for personalized assistance.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Interview Preparation</CardTitle>
+              <CardDescription>
+                Practice with AI-generated interview questions based on your resume and job descriptions.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={() => window.location.href = '/interview-prep'}
+                className="w-full"
+              >
+                Start Interview Prep
+              </Button>
+            </CardContent>
+          </Card>
         </div>
-        
+
         {/* Chat Interface */}
         <div className="flex-1">
           <ChatInterface
@@ -53,6 +84,6 @@ export default function Dashboard() {
           />
         </div>
       </div>
-    </div>
+    </AppLayout>
   )
 } 

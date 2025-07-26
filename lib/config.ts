@@ -4,15 +4,23 @@ export const DATABASE_CONFIG = {
   collections: {
     chats: 'chats',
     messages: 'messages',
-    users: 'users'
+    users: 'users',
+    resumes: 'resumes',
+    jobDescriptions: 'jobDescriptions',
+    interviewSessions: 'interviewSessions'
   }
 } as const
 
 // AI Configuration
 export const AI_CONFIG = {
-  provider: 'google' as const,
   model: 'gemini-2.0-flash' as const,
-  apiKey: process.env.GOOGLE_AI_API_KEY || 'AIzaSyDAveeImm5DzF3aX4lIknUM0yfQcCmGPOA'
+  apiKey: process.env.GEMINI_API_KEY ||'AIzaSyDECQwG3MrG8JrqybIdRRFsPI9AgQaO1uU',
+  apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+  maxInputTokens: 1000000,
+  maxOutputTokens: 8192,
+  maxMessageLength: 30000,
+  retryAttempts: 3,
+  retryDelay: 1000,
 } as const
 
 

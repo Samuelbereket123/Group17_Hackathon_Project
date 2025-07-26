@@ -82,3 +82,97 @@ export function truncateText(text: string, maxLength: number = UI_CONFIG.chat.tr
   if (text.length <= maxLength) return text
   return text.substring(0, maxLength) + '...'
 }
+
+import https from 'https'
+
+/**
+ * Make a direct HTTP call to Gemini API using the required format
+ */
+export async function callGeminiAPI(prompt: string, apiKey: string): Promise<string> {
+  if (!apiKey || apiKey.length < 20) {
+    throw new Error('Invalid API key provided')
+  }
+
+  const contents = [
+    {
+      parts: [
+        {
+          text: prompt
+        }
+      ]
+    }
+  ]
+
+  // Log the full request details
+  console.log('=== GEMINI API REQUEST LOG ===')
+  console.log('URL:', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent')
+  console.log('API Key Length:', apiKey.length)
+  console.log('API Key (first 10 chars):', apiKey.substring(0, 10) + '...')
+  console.log('Prompt Length:', prompt.length)
+  console.log('Prompt (first 200 chars):', prompt.substring(0, 200) + (prompt.length > 200 ? '...' : ''))
+  console.log('Full Prompt:', prompt)
+  console.log('Request Body:', JSON.stringify({ contents }, null, 2))
+  console.log('Request Body Size (bytes):', JSON.stringify({ contents }).length)
+  console.log('=== END REQUEST LOG ===')
+
+  return new Promise((resolve, reject) => {
+    const requestBody = JSON.stringify({ contents })
+    
+    const options = {
+      hostname: 'generativelanguage.googleapis.com',
+      port: 443,
+      path: '/v1beta/models/gemini-2.0-flash:generateContent',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-goog-api-key': apiKey,
+        'Content-Length': Buffer.byteLength(requestBody)
+      },
+      // SSL Configuration for self-signed certificates
+      rejectUnauthorized: false,
+      secureProtocol: 'TLSv1_2_method',
+      ciphers: 'ALL'
+    }
+
+    const req = https.request(options, (res) => {
+      console.log('Gemini API response status:', res.statusCode, res.statusMessage)
+      
+      let data = ''
+      
+      res.on('data', (chunk) => {
+        data += chunk
+      })
+      
+      res.on('end', () => {
+        try {
+          if (res.statusCode && res.statusCode >= 400) {
+            console.error('Gemini API error response:', data)
+            reject(new Error(`Gemini API error: ${res.statusCode} ${res.statusMessage} - ${data}`))
+            return
+          }
+          
+          const responseData = JSON.parse(data)
+          console.log('Gemini API response data keys:', Object.keys(responseData))
+          
+          if (responseData.candidates && responseData.candidates[0] && responseData.candidates[0].content) {
+            resolve(responseData.candidates[0].content.parts[0].text)
+          } else {
+            console.error('Unexpected Gemini API response format:', responseData)
+            reject(new Error('Invalid response format from Gemini API'))
+          }
+        } catch (error) {
+          console.error('Error parsing Gemini API response:', error)
+          reject(error)
+        }
+      })
+    })
+
+    req.on('error', (error) => {
+      console.error('Gemini API request error:', error)
+      reject(error)
+    })
+
+    req.write(requestBody)
+    req.end()
+  })
+}
