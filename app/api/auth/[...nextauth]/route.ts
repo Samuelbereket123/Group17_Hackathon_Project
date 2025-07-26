@@ -1,6 +1,9 @@
 import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
+import NextAuth from "next-auth"
+import CredentialsProvider from "next-auth/providers/credentials"
+import bcrypt from "bcryptjs"
+import clientPromise from "@/lib/mongodb"
+import { DATABASE_CONFIG, ERROR_MESSAGES } from "@/lib/config"
 
 const handler = NextAuth({
   providers: [
@@ -15,9 +18,10 @@ const handler = NextAuth({
           return null;
         }
 
-        const { PrismaClient } = await import('@prisma/client') as any;
-        try {
-          const prisma = new PrismaClient();
+
+        const client = await clientPromise
+        const db = client.db(DATABASE_CONFIG.name)
+        const usersCollection = db.collection(DATABASE_CONFIG.collections.users)
 
           const user = await prisma.user.findUnique({
             where: {

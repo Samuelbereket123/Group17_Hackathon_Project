@@ -9,7 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@prisma/client": "^6.12.0",
+
+    "@auth/mongodb-adapter": "^3.10.0",
+    "@google/generative-ai": "^0.24.1",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-separator": "^1.1.7",
+    "@radix-ui/react-slot": "^1.2.3",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
@@ -20,6 +25,10 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "tailwind-merge": "^3.3.1"
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "tailwind-merge": "^3.3.1",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@types/node": "^20",
