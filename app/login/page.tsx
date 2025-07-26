@@ -103,24 +103,10 @@ export default function LoginPage() {
             <div className="absolute inset-0 flex items-center">
               <Separator className="w-full" />
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
+           
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <Button variant="outline" className="w-full">
-              <Apple className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" className="w-full">
-              <Chrome className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" className="w-full">
-              <Infinity className="h-4 w-4" />
-            </Button>
-          </div>
+          
 
           <div className="text-center text-sm">
             Don't have an account?{' '}

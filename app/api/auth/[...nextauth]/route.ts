@@ -1,3 +1,4 @@
+import NextAuth from "next-auth";
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
@@ -14,59 +15,67 @@ const handler = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) {
-          return null
+          return null;
         }
+
 
         const client = await clientPromise
         const db = client.db(DATABASE_CONFIG.name)
         const usersCollection = db.collection(DATABASE_CONFIG.collections.users)
 
-        const user = await usersCollection.findOne({ 
-          username: credentials.username 
-        })
+          const user = await prisma.user.findUnique({
+            where: {
+              username: credentials.username
+            }
+          });
 
-        if (!user) {
-          return null
-        }
+          await prisma.$disconnect();
 
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        )
+          if (!user) {
+            return null;
+          }
 
-        if (!isPasswordValid) {
-          return null
-        }
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
 
-        return {
-          id: user._id.toString(),
-          username: user.username,
-          email: user.email || null,
+          if (!isPasswordValid) {
+            return null;
+          }
+
+          return {
+            id: user.id,
+            username: user.username,
+            email: user.email || "",
+          };
+        } catch (error) {
+          console.error("Auth error:", error);
+          return null;
         }
       }
     })
   ],
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
   },
   pages: {
-    signIn: "/login"
+    signIn: "/auth/signin",
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.username = user.username
+        token.username = user.username;
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.username = token.username
-        session.user.id = token.sub as string
+        session.user.username = token.username as string;
       }
-      return session
-    }
-  }
-})
+      return session;
+    },
+  },
+});
 
-export { handler as GET, handler as POST } 
+export { handler as GET, handler as POST }; 
